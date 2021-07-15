@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     private Button btnGetLastLocation, btnGetLocationUpdate, btnRemoveLocactionUpdate;
     FusedLocationProviderClient client;
     LocationRequest mLocationRequest;
-    LocationCallback mLocationCallback;
 
 
     @Override
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         client = LocationServices.getFusedLocationProviderClient(MainActivity.this);
         mLocationRequest = new LocationRequest();
 
-        mLocationCallback = new LocationCallback();
         btnGetLastLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,32 +64,28 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        LocationCallback mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult != null) {
+                    Location data = locationResult.getLastLocation();
+                    double lat = data.getLatitude();
+                    double lng = data.getLongitude();
+                    Toast.makeText(MainActivity.this, "New loc detected \nlat: " + lat + " lng:" + lng, Toast.LENGTH_SHORT).show();
+                }
+            };
+        };
+        LocationRequest mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setSmallestDisplacement(100);
 
         btnGetLocationUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkPermission();
-                LocationRequest mLocationRequest = LocationRequest.create();
-                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                mLocationRequest.setInterval(10000);
-                mLocationRequest.setFastestInterval(5000);
-                mLocationRequest.setSmallestDisplacement(100);
-
-                LocationCallback mLocationCallback = new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        if (locationResult != null) {
-                            Location data = locationResult.getLastLocation();
-                            double lat = data.getLatitude();
-                            double lng = data.getLongitude();
-                            Toast.makeText(MainActivity.this, "New loc detected \nlat: " + lat + " lng:" + lng, Toast.LENGTH_SHORT).show();
-                        }
-                    };
-                };
-
                 client.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
-
-
             }
         });
 
